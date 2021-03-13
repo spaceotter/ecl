@@ -66,9 +66,11 @@
 #  include <windows.h>
 # endif
 # ifdef ECL_THREADS
-   typedef HANDLE pthread_t;
-   typedef HANDLE pthread_mutex_t;
-   typedef HANDLE pthread_cond_t; /*Dummy, not really used*/
+#  ifndef WIN_PTHREADS_H
+    typedef HANDLE pthread_t;
+    typedef HANDLE pthread_mutex_t;
+    typedef HANDLE pthread_cond_t; /*Dummy, not really used*/
+#  endif
 #  undef ERROR
 #  ifdef GBC_BOEHM
 #   define CreateThread GC_CreateThread

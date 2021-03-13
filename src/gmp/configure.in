@@ -1446,6 +1446,14 @@ case $host in
         CALLING_CONVENTIONS_OBJS_64='amd64call.lo amd64check$U.lo'
         SPEED_CYCLECOUNTER_OBJ_64=x86_64.lo
         cyclecounter_size_64=2
+
+        case $host in
+          *-*-mingw*)
+            path_64=""
+            limb_64=longlong
+            ;;
+        esac
+
         ;;
     esac
     ;;
@@ -1667,6 +1675,7 @@ for abi in $abilist; do
         # it works.
                                   eval limb_chosen=\"\$limb$abi1\"
         test -n "$limb_chosen" || eval limb_chosen=\"\$limb$abi2\"
+        AC_MSG_WARN("limb chosen $limb_chosen")
         if test "$limb_chosen" = longlong; then
           GMP_PROG_CC_WORKS_LONGLONG($cc $cflags $cppflags,,continue)
         fi
@@ -1857,7 +1866,6 @@ else
   test -n "$tmp" || eval tmp=\"\$path$abi2\"
   path="$tmp generic"
 fi
-
 
 # Long long limb setup for gmp.h.
 case $limb_chosen in
@@ -2800,7 +2808,10 @@ if test $found_asm = yes; then
   GMP_PROG_M4
   GMP_M4_M4WRAP_SPURIOUS
 else
-  M4=m4-not-needed
+  # In case the user has set M4 in the environment, don't touch it.
+  if test -z "$M4" ; then
+    M4=m4-not-needed
+  fi
 fi
 
 # Only do the GMP_ASM checks if there's a .S or .asm wanting them.
