@@ -9,6 +9,8 @@
 (setq c:*user-cc-flags*
       (format nil "~{-I~A~^ ~}" (uiop:split-string include-paths :separator '(#\;))))
 (setq asdf::*user-cache* #P"${PROJECT_BINARY_DIR}/ecl-cache/")
+(defvar *project-binary-dir* "${PROJECT_BINARY_DIR}")
+(defvar *project-source-dir* "${PROJECT_SOURCE_DIR}")
 (ensure-directories-exist asdf::*user-cache*)
 (asdf:make-build :${ecl_lib_SYSTEM_NAME}
                  :type :static-library

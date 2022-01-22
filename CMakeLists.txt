@@ -54,6 +54,7 @@ function(add_ecl_library)
 
     string(TOLOWER "${ecl_lib_SYSTEM_NAME}" ecl_lib_LIBRARY_PATH)
     set(ecl_lib_LIBRARY_PATH "${PROJECT_BINARY_DIR}/${ecl_lib_LIBRARY_PATH}.a")
+    cmake_path(ABSOLUTE_PATH ecl_lib_LIBRARY_PATH NORMALIZE)
     message(STATUS "Build ASDF system :${ecl_lib_SYSTEM_NAME} as ${ecl_lib_LIBRARY_PATH}")
     add_custom_command(
         OUTPUT "${ecl_lib_LIBRARY_PATH}"
@@ -62,12 +63,15 @@ function(add_ecl_library)
         -norc
         -load "${ecl_lib_SYSTEM_NAME}-build.lisp"
         DEPENDS ecl-prj "${PROJECT_BINARY_DIR}/${ecl_lib_SYSTEM_NAME}-build.lisp"
-        ${COMMON_LISP_SRC})
+        ${COMMON_LISP_SRC} ${ecl_lib_SYSTEM_DEPS})
 
+    add_custom_target(${ecl_lib_SYSTEM_NAME}_custom_target
+        DEPENDS "${ecl_lib_LIBRARY_PATH}")
     add_library(${ecl_lib_SYSTEM_NAME} STATIC IMPORTED)
     set_target_properties(${ecl_lib_SYSTEM_NAME} PROPERTIES IMPORTED_LOCATION
         "${ecl_lib_LIBRARY_PATH}")
     target_link_libraries(${ecl_lib_SYSTEM_NAME} INTERFACE ecl ${ecl_lib_SYSTEM_DEPS})
+    add_dependencies(${ecl_lib_SYSTEM_NAME} ${ecl_lib_SYSTEM_NAME}_custom_target)
 endfunction()
 
 function(emit_all_systems_header)
