@@ -1,0 +1,17 @@
+(require :cmp)
+(require :asdf)
+(require :uiop)
+(push "${ecl_lib_LISP_SRC}/" asdf:*central-registry*)
+(defvar system-paths "${ecl_lib_SYSTEM_PATHS}")
+(dolist (path (uiop:split-string system-paths :separator '(#\;)))
+  (push (concatenate 'string path "/") asdf:*central-registry*))
+(defvar include-paths "${ecl_lib_INCLUDE_PATHS}")
+(setq c:*user-cc-flags*
+      (format nil "~{-I~A~^ ~}" (uiop:split-string include-paths :separator '(#\;))))
+(setq asdf::*user-cache* #P"${PROJECT_BINARY_DIR}/ecl-cache/")
+(ensure-directories-exist asdf::*user-cache*)
+(asdf:make-build :${ecl_lib_SYSTEM_NAME}
+                 :type :static-library
+                 :move-here "${PROJECT_BINARY_DIR}"
+                 :init-name "init_lib_${ecl_lib_SYSTEM_C_NAME}")
+(quit)
