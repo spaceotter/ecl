@@ -42,6 +42,8 @@ function(add_ecl_library)
     if(NOT DEFINED ecl_lib_SYSTEM_C_NAME)
         string(REPLACE "-" "_" ecl_lib_SYSTEM_C_NAME "${ecl_lib_SYSTEM_NAME}")
     endif()
+    list(APPEND ALL_LISP_SYSTEMS "${ecl_lib_SYSTEM_C_NAME}")
+    set(ALL_LISP_SYSTEMS "${ALL_LISP_SYSTEMS}" PARENT_SCOPE)
 
     configure_file(
         "${ECL_SOURCE_DIR}/build.lisp.in"
@@ -66,6 +68,22 @@ function(add_ecl_library)
     set_target_properties(${ecl_lib_SYSTEM_NAME} PROPERTIES IMPORTED_LOCATION
         "${ecl_lib_LIBRARY_PATH}")
     target_link_libraries(${ecl_lib_SYSTEM_NAME} INTERFACE ecl ${ecl_lib_SYSTEM_DEPS})
+endfunction()
+
+function(emit_all_systems_header)
+    message(STATUS "Lisp systems: ${ALL_LISP_SYSTEMS}")
+    set(LISP_SYSTEMS_HEADER "${PROJECT_BINARY_DIR}/all_lisp_systems.h")
+    set(LISP_SYSTEMS_INCLUDE "${PROJECT_BINARY_DIR}" PARENT_SCOPE)
+    file(WRITE "${LISP_SYSTEMS_HEADER}" "extern \"C\" {\n")
+    foreach(system ${ALL_LISP_SYSTEMS})
+        file(APPEND "${LISP_SYSTEMS_HEADER}" "extern void init_lib_${system}(cl_object);\n")
+    endforeach()
+    file(APPEND "${LISP_SYSTEMS_HEADER}" "}\n")
+    file(APPEND "${LISP_SYSTEMS_HEADER}" "static void ecl_init_all_modules() {\n")
+    foreach(system ${ALL_LISP_SYSTEMS})
+        file(APPEND "${LISP_SYSTEMS_HEADER}" "ecl_init_module(NULL, init_lib_${system});\n")
+    endforeach()
+    file(APPEND "${LISP_SYSTEMS_HEADER}" "}\n")
 endfunction()
 
 # You are supposed to use ecl-config, but cmake doesn't have a way to capture it at build time
