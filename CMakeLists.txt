@@ -10,7 +10,8 @@ ExternalProject_Add(ecl-prj
     SOURCE_DIR ${ECL_SOURCE}
     BINARY_DIR ${ECL_SOURCE}
     CONFIGURE_COMMAND
-    bash ${ECL_SOURCE}/configure
+    env CC=${CMAKE_C_COMPILER}
+    CXX=${CMAKE_CXX_COMPILER} ${ECL_SOURCE}/configure
     --prefix=${ECL_BUILD}
     --with-tcp
     --with-serve-event
