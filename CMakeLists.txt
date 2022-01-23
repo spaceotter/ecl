@@ -38,7 +38,7 @@ target_include_directories(ecl INTERFACE "${PROJECT_BINARY_DIR}/include")
 function(add_ecl_library)
     cmake_parse_arguments(PARSE_ARGV 0 ecl_lib
         ""
-        "SYSTEM_NAME;SYSTEM_C_NAME;LISP_SRC"
+        "SYSTEM_NAME;SYSTEM_C_NAME;LISP_SRC;ECL_LD_FLAGS;ECL_C_FLAGS"
         "SYSTEM_PATHS;INCLUDE_PATHS;SYSTEM_DEPS")
     if(NOT DEFINED ecl_lib_SYSTEM_C_NAME)
         string(REPLACE "-" "_" ecl_lib_SYSTEM_C_NAME "${ecl_lib_SYSTEM_NAME}")

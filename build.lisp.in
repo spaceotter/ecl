@@ -11,6 +11,8 @@
 (setq asdf::*user-cache* #P"${PROJECT_BINARY_DIR}/ecl-cache/")
 (setq c::*cc* "${CMAKE_C_COMPILER}")
 (setq c::*delete-files* nil)
+(setq c:*user-cc-flags* (concatenate 'string c:*user-cc-flags* "${ecl_lib_ECL_C_FLAGS}"))
+(setq c:*user-ld-flags* (concatenate 'string c:*user-ld-flags* "${ecl_lib_ECL_LD_FLAGS}"))
 (defvar *project-binary-dir* "${PROJECT_BINARY_DIR}")
 (defvar *project-source-dir* "${PROJECT_SOURCE_DIR}")
 (ensure-directories-exist asdf::*user-cache*)
