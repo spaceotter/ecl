@@ -48,7 +48,12 @@ function(add_ecl_library)
 
     configure_file(
         "${ECL_SOURCE_DIR}/build.lisp.in"
-        "${PROJECT_BINARY_DIR}/${ecl_lib_SYSTEM_NAME}-build.lisp")
+        "${PROJECT_BINARY_DIR}/${ecl_lib_SYSTEM_NAME}-build.lisp.in")
+
+    file(GENERATE
+        OUTPUT "${PROJECT_BINARY_DIR}/${ecl_lib_SYSTEM_NAME}-build.lisp"
+        INPUT "${PROJECT_BINARY_DIR}/${ecl_lib_SYSTEM_NAME}-build.lisp.in"
+        )
 
     file(GLOB_RECURSE COMMON_LISP_SRC LIST_DIRECTORIES false
         "${ecl_lib_LISP_SRC}/*.lisp" "${ecl_lib_LISP_SRC}/*.asd")
