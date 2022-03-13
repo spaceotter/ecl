@@ -5,6 +5,8 @@ project(ECL)
 include(ExternalProject)
 set(ECL_SOURCE "${PROJECT_SOURCE_DIR}")
 set(ECL_BUILD "${PROJECT_BINARY_DIR}")
+file(CREATE_LINK "${ECL_BUILD}/build" "${ECL_SOURCE}/build" SYMBOLIC)
+file(MAKE_DIRECTORY "${ECL_BUILD}/build")
 ExternalProject_Add(ecl-prj
     PREFIX ${ECL_BUILD}
     SOURCE_DIR ${ECL_SOURCE}
