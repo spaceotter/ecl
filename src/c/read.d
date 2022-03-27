@@ -423,7 +423,7 @@ si_read_object_or_ignore(cl_object in, cl_object eof)
 
   ecl_bds_bind(env, @'si::*sharp-eq-context*', ECL_NIL);
   ecl_bds_bind(env, @'si::*backq-level*', ecl_make_fixnum(0));
-  x = ecl_read_object_with_delimiter(in, EOF, ECL_READ_RETURN_IGNORABLE, 
+  x = ecl_read_object_with_delimiter(in, EOF, ECL_READ_RETURN_IGNORABLE,
                                      cat_constituent);
   if (x == OBJNULL) {
     env->nvalues = 1;
@@ -553,6 +553,33 @@ double_quote_reader(cl_object in, cl_object c)
   si_put_buffer_string(token);
   @(return output);
 }
+
+#ifdef ECL_UNICODE
+static cl_object
+sharp_n_reader(cl_object in, cl_object c1, cl_object d)
+{
+  int delim = '"';
+  cl_object rtbl = ecl_current_readtable();
+  cl_object token = si_get_buffer_string();
+  cl_object output;
+  int c = ecl_read_char_noeof(in);
+  if (c != delim)
+    FEreader_error("#n Must be followed by double quote, not ~S", in, 1, ECL_CODE_CHAR(c));
+
+  for (;;) {
+    c = ecl_read_char_noeof(in);
+    if (c == delim)
+      break;
+    else if (ecl_readtable_get(rtbl, c, NULL) == cat_single_escape)
+      c = ecl_read_char_noeof(in);
+    ecl_string_push_extend(token, c);
+  }
+
+  output = si_coerce_to_base_string(token);
+  si_put_buffer_string(token);
+  @(return output);
+}
+#endif
 
 static cl_object
 dispatch_reader_fun(cl_object in, cl_object dc)
@@ -860,7 +887,7 @@ sharp_left_parenthesis_reader(cl_object in, cl_object c, cl_object d)
     cl_object x = do_read_delimited_list(')', in, 1);
     cl_index a = _cl_backq_car(&x);
     if (a != QUOTE) {
-      v = cl_list(2, @'si::unquote', 
+      v = cl_list(2, @'si::unquote',
                   cl_list(4, @'si::make-backq-vector', d, x, ECL_NIL));
     } else {
       return si_make_backq_vector(d, x, in);
@@ -1268,7 +1295,7 @@ patch_sharp(const cl_env_ptr the_env, cl_object x)
   if (pairs == ECL_NIL) {
     return x;
   } else {
-    cl_object table = 
+    cl_object table =
       cl__make_hash_table(@'eq', ecl_make_fixnum(20), /* size */
                           cl_core.rehash_size,
                           cl_core.rehash_threshold);
@@ -2148,6 +2175,9 @@ init_read(void)
                                   make_cf3(sharp_Y_reader), r);
   /*  This is specific to this implementation: ignore BOM  */
 #ifdef ECL_UNICODE
+  cl_set_dispatch_macro_character(4, ECL_CODE_CHAR('#'), ECL_CODE_CHAR('n'),
+                                  make_cf3(sharp_n_reader), r);
+
   ecl_readtable_set(r, 0xfeff, cat_whitespace, ECL_NIL);
 #endif
 
