@@ -174,6 +174,10 @@ _ecl_write_base_string(cl_object x, cl_object stream)
     si_do_write_sequence(x, stream, ecl_make_fixnum(0), ECL_NIL);
   } else {
     cl_index ndx, ndx_start;
+#ifdef ECL_UNICODE
+    ecl_write_char('#', stream);
+    ecl_write_char('n', stream);
+#endif
     ecl_write_char('"', stream);
     for (ndx = ndx_start = 0;  ndx < x->base_string.fillp;  ndx++) {
       ecl_character c = x->base_string.self[ndx];
